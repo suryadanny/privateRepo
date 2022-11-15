@@ -26,19 +26,19 @@ message  FileRequest{
 
 
 message FileIndexResponse{
-    repeated Block blocks = 1;
+	string filename = 1;
+    repeated Block blocks = 2;
 }
 
 
 message Block{
     string blockId = 1;
-    repeated Slave slaveList = 2;
+    repeated Slave slaves = 2;
 }
 
 message Slave{
     string slaveId = 1;
-    string address = 2;
-    string port = 3;
+    string url = 2;
 }    
     
    
