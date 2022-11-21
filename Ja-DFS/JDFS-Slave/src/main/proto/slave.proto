@@ -4,3 +4,35 @@ package com.demo.jdfs.slave;
 
 option java_package = "com.demo.jdfs.slave.stubs";
 option java_multiple_files = true;
+
+
+service DataStorageService{
+    
+     rpc getFile(ViewFileRequest) returns (ViewFileResponse) ;
+     
+     rpc putFile(FileStorageRequest) returns (StoredFile) ;
+
+
+}
+
+message FileStorageRequest{
+      
+      string partitionName = 1;
+      string data  = 2;
+      repeated String slaves = 3;
+}
+
+message FileStorageResponse{
+     boolean saved = 1;
+
+}
+
+message ViewFileResponse{
+    string data  = 1;
+}
+
+message ViewFileRequest{
+     string partitionName = 1;
+}
+
+
