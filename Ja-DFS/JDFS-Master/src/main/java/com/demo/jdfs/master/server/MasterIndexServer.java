@@ -16,12 +16,10 @@ public class MasterIndexServer {
 
 	private Server hostServer;
 	
-	final Logger log = LoggerFactory.getLogger(MasterIndexServer.class);
+	final static Logger log = LoggerFactory.getLogger(MasterIndexServer.class);
 
-	private int port = 50052;
 	
-	
-	public void start() {
+	public void start(int port) {
 	    try {
 	    	
 	    	log.info("Starting Indexing service!!");
@@ -64,8 +62,14 @@ public class MasterIndexServer {
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
+		log.info("Server will be starting on port  : "+args[0]);
+		if(args == null || args[0] == null || args[0].isEmpty() )
+		{
+			log.info("please specify port : stopping server initialization of Master Node!!");
+		}
+		
 		MasterIndexServer indexServer = new MasterIndexServer();
-		indexServer.start();
+		indexServer.start(Integer.parseInt(args[0]));
 		
 		indexServer.blockUntilShutdown();
 	}
