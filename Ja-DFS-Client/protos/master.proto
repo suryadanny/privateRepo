@@ -1,0 +1,44 @@
+syntax= "proto3";
+
+package com.demo.jdfs.master;
+
+option java_package = "com.demo.jdfs.master.stubs";
+option java_multiple_files = true;
+
+
+service  IndexService{
+    rpc getFileDetails(FileRequest) returns (FileIndexResponse);
+    
+    rpc putFilesDetails(CreateOrEditFileRequest) returns (FileIndexResponse);
+   
+}
+
+
+message CreateOrEditFileRequest{
+   string fileName  = 1;
+   int64 fileSize = 2;
+
+}
+
+message  FileRequest{
+    string fileName = 1;
+}
+
+
+message FileIndexResponse{
+	string filename = 1;
+    repeated Block blocks = 2;
+}
+
+
+message Block{
+    string blockId = 1;
+    repeated Slave slaves = 2;
+}
+
+message Slave{
+    string slaveId = 1;
+    string url = 2;
+}    
+    
+   

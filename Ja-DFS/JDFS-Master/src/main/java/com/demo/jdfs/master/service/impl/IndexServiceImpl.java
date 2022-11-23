@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.demo.jdfs.master.server.MasterIndexServer;
 import com.demo.jdfs.master.stubs.Block;
 import com.demo.jdfs.master.stubs.CreateOrEditFileRequest;
 import com.demo.jdfs.master.stubs.FileIndexResponse;
@@ -23,23 +27,24 @@ public class IndexServiceImpl extends  IndexServiceGrpc.IndexServiceImplBase {
 	 private Map<String,List<String>> blockAllocMemory;
 	 private int blockSize = 100;
 	 private int repetitionFactor = 2;
-	  
+	 
+	 final static Logger log = LoggerFactory.getLogger(IndexServiceImpl.class);
 	  public IndexServiceImpl() {
 		  super();
 		  
 		  fileAllocList = new HashMap<String,List<String>>();
 		  slaveServerMapping = new  HashMap<String,String>();
 		  blockAllocMemory = new HashMap<String,List<String>>();
-		  slaveServerMapping.put("A", "localHost:52000");
-		  slaveServerMapping.put("B", "localHost:52001");
-		  slaveServerMapping.put("C", "localHost:52002");
-		  slaveServerMapping.put("D", "localHost:52003");
+		  slaveServerMapping.put("A", "127.0.0.1:50056");
+		  slaveServerMapping.put("B", "127.0.0.1:50056");
+		  slaveServerMapping.put("C", "127.0.0.1:50056");
+		  slaveServerMapping.put("D", "127.0.0.1:50056");
 	  }
 	
       public void getFileDetails(FileRequest fileRequest,StreamObserver<FileIndexResponse> observer ) {
     	  String fileName = fileRequest.getFileName();
     	  List<Block> blockList = new ArrayList<Block>();
-    	  
+    	  log.info("here to get file : "+ fileName);
     	  if(fileAllocList.containsKey(fileName)) {
     		  fileAllocList.get(fileName).stream().forEach(b -> {
     			  
@@ -53,6 +58,7 @@ public class IndexServiceImpl extends  IndexServiceGrpc.IndexServiceImplBase {
     		  });
     	  }
     	  FileIndexResponse response = FileIndexResponse.newBuilder().setFilename(fileName).addAllBlocks(blockList).build();
+    	  log.info("Blocks found for the file :"+response.getBlocksCount());
     	  observer.onNext(response);
     	  observer.onCompleted();
       }

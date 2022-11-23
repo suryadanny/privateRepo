@@ -1,0 +1,49 @@
+syntax= "proto3";
+
+package com.demo.jdfs.slave;
+
+option java_package = "com.demo.jdfs.slave.stubs";
+option java_multiple_files = true;
+
+
+service DataStorageService{
+    
+     rpc getFile(ViewFileRequest) returns (stream ViewFileResponse) ;
+     
+     rpc putFile(FileStorageRequest) returns (FileStorageResponse) ;
+
+
+}
+
+message FileStorageRequest{
+      
+      string partitionName = 1;
+      string data  = 2;
+      repeated Slave slaves = 3;
+}
+
+
+message Slave{
+    string slaveId = 1;
+    string url = 2;
+} 
+
+message FileStorageResponse{
+     bool saved = 1;
+
+}
+
+message ViewFileResponse{
+    string data  = 1;
+}
+
+message ViewFileRequest{
+     string partitionName = 1;
+}
+
+message ErrorRespone{
+    string reason = 1;
+
+}
+
+
