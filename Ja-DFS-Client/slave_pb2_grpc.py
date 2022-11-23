@@ -14,7 +14,7 @@ class DataStorageServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.getFile = channel.unary_stream(
+        self.getFile = channel.unary_unary(
                 '/com.demo.jdfs.slave.DataStorageService/getFile',
                 request_serializer=slave__pb2.ViewFileRequest.SerializeToString,
                 response_deserializer=slave__pb2.ViewFileResponse.FromString,
@@ -44,7 +44,7 @@ class DataStorageServiceServicer(object):
 
 def add_DataStorageServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'getFile': grpc.unary_stream_rpc_method_handler(
+            'getFile': grpc.unary_unary_rpc_method_handler(
                     servicer.getFile,
                     request_deserializer=slave__pb2.ViewFileRequest.FromString,
                     response_serializer=slave__pb2.ViewFileResponse.SerializeToString,
@@ -75,7 +75,7 @@ class DataStorageService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/com.demo.jdfs.slave.DataStorageService/getFile',
+        return grpc.experimental.unary_unary(request, target, '/com.demo.jdfs.slave.DataStorageService/getFile',
             slave__pb2.ViewFileRequest.SerializeToString,
             slave__pb2.ViewFileResponse.FromString,
             options, channel_credentials,

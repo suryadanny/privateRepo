@@ -1,6 +1,9 @@
+import os.path
+
 import grpc
 
 from master_pb2 import FileRequest
+from master_pb2 import CreateOrEditFileRequest
 from master_pb2_grpc import IndexServiceStub
 from slave_pb2_grpc import DataStorageServiceStub
 from slave_pb2 import ViewFileRequest
@@ -39,6 +42,16 @@ class JdfsClient:
                         print('done')
                         break
                 print('Next block')
+
+    def put_file(self, source, dest):
+        size = os.path.getsize(source)
+        channel = grpc.insecure_channel(self.master_url)
+        index_service = IndexServiceStub(channel)
+        request = CreateOrEditFileRequest(fileName=dest, fileSize=size)
+        partitions = index_service.putFilesDetails(request)
+        with open(source) as file:
+            for block in partitions.blocks:
+                print('fg')
 
 
 def main(args):
