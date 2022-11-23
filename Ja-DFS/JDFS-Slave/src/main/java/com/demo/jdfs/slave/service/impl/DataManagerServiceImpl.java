@@ -25,15 +25,15 @@ import io.grpc.stub.StreamObserver;
 
 public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageServiceImplBase  {
 	
-	String storageLocation ;
-    BufferedReader reader ;
-    BufferedWriter writer;
-    final Logger log = LoggerFactory.getLogger(DataManagerServiceImpl.class);
+	private String storageLocation ;
+    private BufferedReader reader ;
+    private BufferedWriter writer;
+    private final Logger log = LoggerFactory.getLogger(DataManagerServiceImpl.class);
 	
 	
-	public DataManagerServiceImpl() {
+	public DataManagerServiceImpl(String path) {
 		super();
-		storageLocation ="D:\\project\\store\\A\\";
+		this.storageLocation ="D:\\project\\store\\A\\";
 		
 	}
 	
@@ -80,6 +80,7 @@ public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageSe
 		try {
 			writer = new BufferedWriter(new FileWriter(filePath));
 			writer.write(request.getData());
+			writer.close();
 		}catch(Exception ex) {
 			log.info("Error occurred while writing partition - " + request.getPartitionName() + " : " + ex.getMessage()  );
 		}

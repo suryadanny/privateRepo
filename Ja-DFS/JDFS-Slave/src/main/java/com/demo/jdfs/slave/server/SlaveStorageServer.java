@@ -20,8 +20,8 @@ public class SlaveStorageServer {
 	public void start(int port) {
 	    try {
 	    	
-	    	log.info("Starting Indexing service!!");
-	    	hostServer = ServerBuilder.forPort(port).addService((BindableService) new DataManagerServiceImpl()).build().start();
+	    	log.info("Starting Storage service!!");
+	    	hostServer = ServerBuilder.forPort(port).addService((BindableService) new DataManagerServiceImpl("")).build().start();
 	    	log.info("Service started at : "+ hostServer.getPort());
 	    	Runtime.getRuntime().addShutdownHook(new Thread() {
 	    		@Override
@@ -52,7 +52,7 @@ public class SlaveStorageServer {
 	public void blockUntilShutdown() throws InterruptedException {
 		
 		if(hostServer!= null) {
-			log.info("Indexing service is live and available");
+			log.info("Slave Storage service is live and available");
 			hostServer.awaitTermination();
 			
 		}
@@ -60,12 +60,12 @@ public class SlaveStorageServer {
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
-		log.info("Server will be starting on port  : "+args[0]);
+		
 		if(args == null || args[0] == null || args[0].isEmpty() )
 		{
 			log.info("please specify port : stopping server initialization of Master Node!!");
 		}
-		
+		log.info("Slave Storage Server will be starting on port  : "+args[0]);
 		SlaveStorageServer storageServer = new SlaveStorageServer();
 		storageServer.start(Integer.parseInt(args[0]));
 		

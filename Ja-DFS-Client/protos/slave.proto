@@ -8,7 +8,7 @@ option java_multiple_files = true;
 
 service DataStorageService{
     
-     rpc getFile(ViewFileRequest) returns (stream ViewFileResponse) ;
+     rpc getFile(ViewFileRequest) returns (ViewFileResponse) ;
      
      rpc putFile(FileStorageRequest) returns (FileStorageResponse) ;
 
