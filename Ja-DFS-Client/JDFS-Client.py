@@ -7,7 +7,7 @@ from master_pb2 import CreateOrEditFileRequest
 from master_pb2_grpc import IndexServiceStub
 from slave_pb2_grpc import DataStorageServiceStub
 from slave_pb2 import ViewFileRequest
-from slave_pb2 import ViewFileResponse
+from slave_pb2 import FileStorageRequest
 import sys
 
 
@@ -34,11 +34,8 @@ class JdfsClient:
                     print('getting block id : ' + str(block.blockId))
                     file_request = ViewFileRequest(partitionName=block.blockId)
                     file_data = storage_service.getFile(file_request)
-                    data = ''
-                    for resp in file_data:
-                        data = resp.data
-                    if data:
-                        print(data)
+                    if file_data.data:
+                        print(file_data.data)
                         print('done')
                         break
                 print('Next block')
@@ -49,9 +46,23 @@ class JdfsClient:
         index_service = IndexServiceStub(channel)
         request = CreateOrEditFileRequest(fileName=dest, fileSize=size)
         partitions = index_service.putFilesDetails(request)
+        chunk = 100
+        blocks = len(partitions.blocks)
         with open(source) as file:
             for block in partitions.blocks:
                 print('fg')
+                data = file.read(chunk)
+                if len(block.slaves) > 0:
+                    slave = block.slaves[0]
+                    slave_channel = grpc.insecure_channel(slave.url)
+                    slave_service = DataStorageServiceStub(slave_channel)
+                    storage_request = FileStorageRequest(partitionName=block.blockId, data=data,
+                                                         slaves=block.slaves[1:])
+                    response = slave_service.putFile(storage_request)
+                    if response.saved:
+                        print('block saved successfully')
+                blocks -= 1
+                print(' %s blocks left', str(blocks))
 
 
 def main(args):
