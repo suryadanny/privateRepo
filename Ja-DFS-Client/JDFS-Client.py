@@ -50,7 +50,6 @@ class JdfsClient:
         blocks = len(partitions.blocks)
         with open(source) as file:
             for block in partitions.blocks:
-                print('fg')
                 data = file.read(chunk)
                 if len(block.slaves) > 0:
                     slave = block.slaves[0]
@@ -68,7 +67,12 @@ class JdfsClient:
 def main(args):
     client = JdfsClient("127.0.0.1:50052")
     print('here')
-    client.getfile("test1")
+    if args[1] == str("GET"):
+        client.getfile(args[2])
+    elif args[1] == str("PUT"):
+        client.put_file(args[2], args[3])
+    else:
+        print("please enter relevant arguments")
 
 
 if __name__ == "__main__":
