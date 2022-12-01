@@ -17,11 +17,11 @@ public class SlaveStorageServer {
 	final static Logger log = LoggerFactory.getLogger(SlaveStorageServer.class);
 
 	
-	public void start(int port) {
+	public void start(int port, String path) {
 	    try {
 	    	
 	    	log.info("Starting Storage service!!");
-	    	hostServer = ServerBuilder.forPort(port).addService((BindableService) new DataManagerServiceImpl("")).build().start();
+	    	hostServer = ServerBuilder.forPort(port).addService((BindableService) new DataManagerServiceImpl(path)).build().start();
 	    	log.info("Service started at : "+ hostServer.getPort());
 	    	Runtime.getRuntime().addShutdownHook(new Thread() {
 	    		@Override
@@ -61,13 +61,21 @@ public class SlaveStorageServer {
 	
 	public static void main(String[] args) throws InterruptedException {
 		
-		if(args == null || args[0] == null || args[0].isEmpty() )
+		if(args == null )
 		{
 			log.info("please specify port : stopping server initialization of Master Node!!");
+			return;
 		}
+		
+		if( args[0] == null || args[0].isEmpty() || args[1] == null || args[1].isEmpty()) {
+			log.info("Either arugument for storage path/port to initialise the server are missing please check!!");
+			return;
+		}
+		
+		
 		log.info("Slave Storage Server will be starting on port  : "+args[0]);
 		SlaveStorageServer storageServer = new SlaveStorageServer();
-		storageServer.start(Integer.parseInt(args[0]));
+		storageServer.start(Integer.parseInt(args[0]),args[1]);
 		
 		storageServer.blockUntilShutdown();
 	}

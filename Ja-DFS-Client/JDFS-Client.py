@@ -1,4 +1,5 @@
 import os.path
+from typing import Iterable
 
 import grpc
 
@@ -11,13 +12,19 @@ from slave_pb2 import FileStorageRequest
 import sys
 
 
+def get_stream(file, chunk, blockId, slaves):
+    for data in file.read(chunk):
+        print('yield happened')
+        yield FileStorageRequest(partitionName=blockId, data=data, slaves=slaves)
+
+
 class JdfsClient:
 
     def __init__(self, master_url):
         self.master_url = master_url
         print(self.master_url)
 
-    def getfile(self, file_name):
+    def getfile(self, file_name, dest):
         channel = grpc.insecure_channel(self.master_url)
         index_service = IndexServiceStub(channel)
         request = FileRequest(fileName=file_name)
@@ -29,14 +36,19 @@ class JdfsClient:
         if len(indexed_file_details.blocks) > 0:
             for block in indexed_file_details.blocks:
                 for slave in block.slaves:
+                    block_saved = False
                     slave_channel = grpc.insecure_channel(slave.url)
                     storage_service = DataStorageServiceStub(slave_channel)
                     print('getting block id : ' + str(block.blockId))
                     file_request = ViewFileRequest(partitionName=block.blockId)
                     file_data = storage_service.getFile(file_request)
-                    if file_data.data:
-                        print(file_data.data)
-                        print('done')
+                    with open(dest, 'ab') as dest_file:
+                        for response in file_data.data:
+                            print(response.data)
+                            dest_file.write(response)
+                            print('done')
+                        block_saved = True
+                    if block_saved:
                         break
                 print('Next block')
 
@@ -46,18 +58,18 @@ class JdfsClient:
         index_service = IndexServiceStub(channel)
         request = CreateOrEditFileRequest(fileName=dest, fileSize=size)
         partitions = index_service.putFilesDetails(request)
-        chunk = 100
+        chunk = 8192
         blocks = len(partitions.blocks)
-        with open(source) as file:
+        print(str(blocks)+' Blocks to delivered : ' + str(partitions.blocks))
+        with open(source, 'rb') as file:
             for block in partitions.blocks:
-                data = file.read(chunk)
                 if len(block.slaves) > 0:
                     slave = block.slaves[0]
                     slave_channel = grpc.insecure_channel(slave.url)
                     slave_service = DataStorageServiceStub(slave_channel)
-                    storage_request = FileStorageRequest(partitionName=block.blockId, data=data,
-                                                         slaves=block.slaves[1:])
-                    response = slave_service.putFile(storage_request)
+                    iterator = get_stream(file=file, chunk=chunk, blockId=block.blockId, slaves=block.slaves[1:])
+                    print('here-call : ' + str(iterator))
+                    response = slave_service.putFile(iterator)
                     if response.saved:
                         print('block saved successfully')
                 blocks -= 1
@@ -67,10 +79,11 @@ class JdfsClient:
 def main(args):
     client = JdfsClient("127.0.0.1:50052")
     print('here')
-    if args[1] == str("GET"):
-        client.getfile(args[2])
-    elif args[1] == str("PUT"):
-        client.put_file(args[2], args[3])
+    print(args[1])
+    if args[0] == str("GET"):
+        client.getfile(args[1], args[2])
+    elif str(args[0]) == str("PUT"):
+        client.put_file(args[1], args[2])
     else:
         print("please enter relevant arguments")
 

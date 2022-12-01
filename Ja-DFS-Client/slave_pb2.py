@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bslave.proto\x12\x13\x63om.demo.jdfs.slave\"e\n\x12\x46ileStorageRequest\x12\x15\n\rpartitionName\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12*\n\x06slaves\x18\x03 \x03(\x0b\x32\x1a.com.demo.jdfs.slave.Slave\"%\n\x05Slave\x12\x0f\n\x07slaveId\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\"$\n\x13\x46ileStorageResponse\x12\r\n\x05saved\x18\x01 \x01(\x08\" \n\x10ViewFileResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"(\n\x0fViewFileRequest\x12\x15\n\rpartitionName\x18\x01 \x01(\t\"\x1e\n\x0c\x45rrorRespone\x12\x0e\n\x06reason\x18\x01 \x01(\t2\xca\x01\n\x12\x44\x61taStorageService\x12V\n\x07getFile\x12$.com.demo.jdfs.slave.ViewFileRequest\x1a%.com.demo.jdfs.slave.ViewFileResponse\x12\\\n\x07putFile\x12\'.com.demo.jdfs.slave.FileStorageRequest\x1a(.com.demo.jdfs.slave.FileStorageResponseB\x1d\n\x19\x63om.demo.jdfs.slave.stubsP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bslave.proto\x12\x13\x63om.demo.jdfs.slave\"e\n\x12\x46ileStorageRequest\x12\x15\n\rpartitionName\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12*\n\x06slaves\x18\x03 \x03(\x0b\x32\x1a.com.demo.jdfs.slave.Slave\"%\n\x05Slave\x12\x0f\n\x07slaveId\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\"$\n\x13\x46ileStorageResponse\x12\r\n\x05saved\x18\x01 \x01(\x08\" \n\x10ViewFileResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"(\n\x0fViewFileRequest\x12\x15\n\rpartitionName\x18\x01 \x01(\t\"\x1e\n\x0c\x45rrorRespone\x12\x0e\n\x06reason\x18\x01 \x01(\t2\xce\x01\n\x12\x44\x61taStorageService\x12X\n\x07getFile\x12$.com.demo.jdfs.slave.ViewFileRequest\x1a%.com.demo.jdfs.slave.ViewFileResponse0\x01\x12^\n\x07putFile\x12\'.com.demo.jdfs.slave.FileStorageRequest\x1a(.com.demo.jdfs.slave.FileStorageResponse(\x01\x42\x1d\n\x19\x63om.demo.jdfs.slave.stubsP\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'slave_pb2', globals())
@@ -34,5 +34,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ERRORRESPONE._serialized_start=292
   _ERRORRESPONE._serialized_end=322
   _DATASTORAGESERVICE._serialized_start=325
-  _DATASTORAGESERVICE._serialized_end=527
+  _DATASTORAGESERVICE._serialized_end=531
 # @@protoc_insertion_point(module_scope)

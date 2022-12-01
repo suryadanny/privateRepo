@@ -25,7 +25,7 @@ public class IndexServiceImpl extends  IndexServiceGrpc.IndexServiceImplBase {
 	 private Map<String,List<String>> fileAllocList;
 	 private Map<String,String> slaveServerMapping;
 	 private Map<String,List<String>> blockAllocMemory;
-	 private int blockSize = 100;
+	 private int blockSize = 8192 * 6;
 	 private int repetitionFactor = 2;
 	 
 	 final static Logger log = LoggerFactory.getLogger(IndexServiceImpl.class);
@@ -35,10 +35,10 @@ public class IndexServiceImpl extends  IndexServiceGrpc.IndexServiceImplBase {
 		  fileAllocList = new HashMap<String,List<String>>();
 		  slaveServerMapping = new  HashMap<String,String>();
 		  blockAllocMemory = new HashMap<String,List<String>>();
-		  slaveServerMapping.put("A", "127.0.0.1:50056");
+		  slaveServerMapping.put("A", "127.0.0.1:50055");
 		  slaveServerMapping.put("B", "127.0.0.1:50056");
-		  slaveServerMapping.put("C", "127.0.0.1:50056");
-		  slaveServerMapping.put("D", "127.0.0.1:50056");
+		  slaveServerMapping.put("C", "127.0.0.1:50057");
+		  slaveServerMapping.put("D", "127.0.0.1:50058");
 	  }
 	
       public void getFileDetails(FileRequest fileRequest,StreamObserver<FileIndexResponse> observer ) {
@@ -98,10 +98,14 @@ public class IndexServiceImpl extends  IndexServiceGrpc.IndexServiceImplBase {
       public List<String> getRandom(List<String> list, int numElements){
     	  Random random = new Random();
     	  List<String> randomList = new ArrayList<String>();
-    	  
-    	  for(int i = 0 ; i< numElements ;i++) {
+    	  int i = 0 ;
+    	   while( i< numElements ) {
     		  int ranInt = random.nextInt(list.size());
-    		  randomList.add(list.get(ranInt));
+    		  String st = list.get(ranInt) ;
+    		  if(!randomList.contains(st)) {
+    		    randomList.add(list.get(ranInt));
+    		    i++;
+    		  }
     	  }
     	  return randomList;
       }

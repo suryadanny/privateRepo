@@ -16,10 +16,10 @@ class FileStorageRequest(_message.Message):
     DATA_FIELD_NUMBER: _ClassVar[int]
     PARTITIONNAME_FIELD_NUMBER: _ClassVar[int]
     SLAVES_FIELD_NUMBER: _ClassVar[int]
-    data: str
+    data: bytes
     partitionName: str
     slaves: _containers.RepeatedCompositeFieldContainer[Slave]
-    def __init__(self, partitionName: _Optional[str] = ..., data: _Optional[str] = ..., slaves: _Optional[_Iterable[_Union[Slave, _Mapping]]] = ...) -> None: ...
+    def __init__(self, partitionName: _Optional[str] = ..., data: _Optional[bytes] = ..., slaves: _Optional[_Iterable[_Union[Slave, _Mapping]]] = ...) -> None: ...
 
 class FileStorageResponse(_message.Message):
     __slots__ = ["saved"]
@@ -44,5 +44,5 @@ class ViewFileRequest(_message.Message):
 class ViewFileResponse(_message.Message):
     __slots__ = ["data"]
     DATA_FIELD_NUMBER: _ClassVar[int]
-    data: str
-    def __init__(self, data: _Optional[str] = ...) -> None: ...
+    data: bytes
+    def __init__(self, data: _Optional[bytes] = ...) -> None: ...

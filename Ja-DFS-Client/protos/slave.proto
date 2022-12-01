@@ -8,9 +8,9 @@ option java_multiple_files = true;
 
 service DataStorageService{
     
-     rpc getFile(ViewFileRequest) returns (ViewFileResponse) ;
+     rpc getFile(ViewFileRequest) returns (stream ViewFileResponse) ;
      
-     rpc putFile(FileStorageRequest) returns (FileStorageResponse) ;
+     rpc putFile(stream FileStorageRequest) returns (FileStorageResponse) ;
 
 
 }
@@ -18,7 +18,7 @@ service DataStorageService{
 message FileStorageRequest{
       
       string partitionName = 1;
-      string data  = 2;
+      bytes data  = 2;
       repeated Slave slaves = 3;
 }
 
@@ -34,7 +34,7 @@ message FileStorageResponse{
 }
 
 message ViewFileResponse{
-    string data  = 1;
+    bytes data  = 1;
 }
 
 message ViewFileRequest{
