@@ -9,13 +9,15 @@ from master_pb2_grpc import IndexServiceStub
 from slave_pb2_grpc import DataStorageServiceStub
 from slave_pb2 import ViewFileRequest
 from slave_pb2 import FileStorageRequest
+from slave_pb2 import Slave
 import sys
 
 
 def get_stream(file, chunk, blockId, slaves):
     for data in file.read(chunk):
         print('yield happened')
-        yield FileStorageRequest(partitionName=blockId, data=data, slaves=slaves)
+        print(type(data))
+        yield FileStorageRequest(partitionName=blockId, data=bytes(data), slaves=slaves)
 
 
 class JdfsClient:
@@ -60,20 +62,25 @@ class JdfsClient:
         partitions = index_service.putFilesDetails(request)
         chunk = 8192
         blocks = len(partitions.blocks)
-        print(str(blocks)+' Blocks to delivered : ' + str(partitions.blocks))
+        print(str(blocks) + ' Blocks to delivered : ' + str(partitions.blocks))
+        print("src : " + source)
         with open(source, 'rb') as file:
             for block in partitions.blocks:
                 if len(block.slaves) > 0:
                     slave = block.slaves[0]
                     slave_channel = grpc.insecure_channel(slave.url)
                     slave_service = DataStorageServiceStub(slave_channel)
-                    iterator = get_stream(file=file, chunk=chunk, blockId=block.blockId, slaves=block.slaves[1:])
-                    print('here-call : ' + str(iterator))
-                    response = slave_service.putFile(iterator)
+                    slaves = [Slave(slaveId=slave.slaveId, url=slave.url) for slave in block.slaves[1:]]
+                    iterator = get_stream(file=file, chunk=chunk, blockId=block.blockId, slaves=slaves)
+                    print("iterator  type : "+str(type(iterator)))
+                    # tp = next(iterator)
+                    # print('here-call : ' + str(tp))
+                    # print("request type :" + str(type(tp)))
+                    response = slave_service.putFile(iterator.__iter__())
                     if response.saved:
                         print('block saved successfully')
                 blocks -= 1
-                print(' %s blocks left', str(blocks))
+                print('{} blocks left'.format(str(blocks)))
 
 
 def main(args):
