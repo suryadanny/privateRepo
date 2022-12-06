@@ -14,7 +14,8 @@ import sys
 
 
 def get_stream(file, chunk, blockId, slaves):
-    for data in file.read(chunk):
+    for i in range(0,6):
+        data = file.read(chunk)
         print('yield happened')
         print(type(data))
         yield FileStorageRequest(partitionName=blockId, data=bytes(data), slaves=slaves)
