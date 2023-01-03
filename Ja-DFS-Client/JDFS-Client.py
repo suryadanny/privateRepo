@@ -13,8 +13,8 @@ from slave_pb2 import Slave
 import sys
 
 
-def get_stream(file, chunk, blockId, slaves):
-    for i in range(0,6):
+def get_stream(file, chunk, blockId, slaves, numOfChunks):
+    for i in range(0, int(numOfChunks)):
         data = file.read(chunk)
         print('yield happened')
         print(type(data))
@@ -31,8 +31,11 @@ class JdfsClient:
         channel = grpc.insecure_channel(self.master_url)
         index_service = IndexServiceStub(channel)
         request = FileRequest(fileName=file_name)
+        if dest[-1] != '\\':
+            dest += "\\"
 
-        print('here2')
+        dest += file_name
+        print('destination folder : {}'.format(dest))
         indexed_file_details = index_service.getFileDetails(request)
         print(str(indexed_file_details))
         print("blocks available : " + str(len(indexed_file_details.blocks)))
@@ -46,9 +49,9 @@ class JdfsClient:
                     file_request = ViewFileRequest(partitionName=block.blockId)
                     file_data = storage_service.getFile(file_request)
                     with open(dest, 'ab') as dest_file:
-                        for response in file_data.data:
+                        for response in file_data:
                             print(response.data)
-                            dest_file.write(response)
+                            dest_file.write(response.data)
                             print('done')
                         block_saved = True
                     if block_saved:
@@ -58,12 +61,16 @@ class JdfsClient:
     def put_file(self, source, dest):
         size = os.path.getsize(source)
         channel = grpc.insecure_channel(self.master_url)
+        dest = source.split("\\")[-1]
         index_service = IndexServiceStub(channel)
         request = CreateOrEditFileRequest(fileName=dest, fileSize=size)
         partitions = index_service.putFilesDetails(request)
         chunk = 8192
+        blk_size = 8192 * 6
+        numChunks = blk_size / chunk
         blocks = len(partitions.blocks)
         print(str(blocks) + ' Blocks to delivered : ' + str(partitions.blocks))
+        print("Nums of chunks :" + str(numChunks))
         print("src : " + source)
         with open(source, 'rb') as file:
             for block in partitions.blocks:
@@ -72,11 +79,13 @@ class JdfsClient:
                     slave_channel = grpc.insecure_channel(slave.url)
                     slave_service = DataStorageServiceStub(slave_channel)
                     slaves = [Slave(slaveId=slave.slaveId, url=slave.url) for slave in block.slaves[1:]]
-                    iterator = get_stream(file=file, chunk=chunk, blockId=block.blockId, slaves=slaves)
-                    print("iterator  type : "+str(type(iterator)))
+                    iterator = get_stream(file=file, chunk=chunk, blockId=block.blockId, slaves=slaves,
+                                          numOfChunks=numChunks)
+
+                    print("iterator  type : " + str(type(iterator)))
                     # tp = next(iterator)
                     # print('here-call : ' + str(tp))
-                    # print("request type :" + str(type(tp)))
+                    # print("request type :" + str(iterator.__str__()))
                     response = slave_service.putFile(iterator.__iter__())
                     if response.saved:
                         print('block saved successfully')

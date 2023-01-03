@@ -65,14 +65,23 @@ public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageSe
 		String filePath = storageLocation  + request.getPartitionName();
 		byte[] data= new byte[8192];
 		log.info("filePath : {}",filePath);
-		
+		int availableBytes=0;
 		if(Files.exists(Paths.get(filePath))) {
 			
 			try {
 				reader = new BufferedInputStream(new FileInputStream(filePath));
 				    int line;
-					while(( line = reader.read(data)) != -1) {
+				    if(( availableBytes = reader.available()) < 8*1024) {
+				    	data = new byte[availableBytes];
+				    }
+				    int offset = 0;
+					while(reader.available() > 0) {
+						line = reader.read(data,0,data.length);
 						responseObserver.onNext(ViewFileResponse.newBuilder().setData(ByteString.copyFrom(data)).build());
+						
+						if(( availableBytes = reader.available()) < 8*1024) {
+					    	data = new byte[availableBytes];
+					    }
 					}
 				
 			} catch (Exception e) {
@@ -107,6 +116,7 @@ public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageSe
 			public void onNext(FileStorageRequest request) {
 				String filePath = storageLocation + request.getPartitionName();
 				log.info("partition {} being stored ",filePath );
+			
 				try {
 					if(!filePath.equalsIgnoreCase(path)) {
 						if(streamWriter != null)
@@ -118,6 +128,12 @@ public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageSe
 					streamWriter.flush();
 				}catch(Exception ex) {
 					log.info("Error occurred while writing partition - " + request.getPartitionName() + " : " + ex.getMessage()  );
+					
+					try {
+						streamWriter.close();
+					} catch (IOException e) {
+						log.info("Error occurred while closing writer - ");
+					}
 				}
 				if(request.getSlavesList().size() > 0) {
 				   Slave slave =   request.getSlavesList().get(0);
@@ -135,7 +151,11 @@ public class DataManagerServiceImpl extends DataStorageServiceGrpc.DataStorageSe
 			@Override
 			public void onError(Throwable t) {
 				 log.error("Error message while writing file : {}",t.getMessage(),t);
-				
+				try {
+					streamWriter.close();
+				} catch (IOException e) {
+					log.info("Error occurred while closing writer - ");
+				}
 			}
 
 			@Override
