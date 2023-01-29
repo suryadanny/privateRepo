@@ -55,7 +55,7 @@ python -m grpc_tools.protoc -I../../protos --python_out=. --pyi_out=. --grpc_pyt
 **Run the client using the following command-**
 
 GET Request-
-py JDFS-client.py GET \<filename registered with master application\> 
+py JDFS-client.py GET \<destination filepath\> \<filename registered with master application\> 
 
 PUT Request -
 py JDFS-client.py PUT \<sorce file absolute filepath\> \<filename registered with the master application\>
